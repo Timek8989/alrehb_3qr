@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Buildings - Real Estate Listings</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #60a5fa;
+            --secondary: #0ea5e9;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --light: #f9fafb;
+            --dark: #1f2937;
+            --gray: #9ca3af;
+            --gray-light: #e5e7eb;
+            --card-bg: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --gradient-primary: linear-gradient(135deg, #1e40af, #3b82f6);
+            --gradient-secondary: linear-gradient(135deg, #0ea5e9, #38bdf8);
+            --radius-sm: 0.25rem;
+            --radius: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            font-size: 16px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Add dark mode styles */
+        body.dark-mode {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+        body.dark-mode .container {
+            background-color: #374151;
+            color: #f9fafb;
+        }
+
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+            height: 40vh;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header p {
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        nav.scrolled {
+            padding: 0.75rem 2rem;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-direction: row-reverse;
+        }
+
+        nav ul li {
+            margin: 0 1.5rem;
+        }
+
+        nav ul li a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: var(--transition);
+        }
+
+        nav ul li a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var (--primary);
+            transition: var(--transition);
+        }
+
+        nav ul li a:hover {
+            color: var(--primary);
+        }
+
+        nav ul li a:hover:after {
+            width: 100%;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+
+        .container:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-form {
+            max-width: 450px;
+            margin: 3rem auto;
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            background-color: var(--card-bg);
+            transform: translateY(0);
+            transition: var(--transition);
+        }
+
+        .login-form:hover {
+            transform: translateY(-5px);
+        }
+
+        h1, h2, h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2:after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background: var(--gradient-primary);
+            bottom: 0;
+            left: 0;
+            border-radius: var(--radius-full);
+        }
+
+        .buildings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .building-card {
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var (--shadow);
+            transition: var (--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--card-bg);
+            position: relative;
+        }
+
+        .building-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .building-image {
+            height: 280px;
+            background-color: var(--gray-light);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .building-image:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.3));
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .building-card:hover .building-image:before {
+            opacity: 1;
+        }
+        
+        .featured-tag {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+            box-shadow: var(--shadow);
+        }
+
+        .building-info {
+            padding: 1.75rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid var(--gray-light);
+            text-align: right;
+        }
+        
+        .building-info h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .building-location {
+            display: flex;
+            align-items: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .building-location svg {
+            margin-right: 0.25rem;
+            height: 16px;
+            width: 16px;
+        }
+
+        .building-price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0.75rem 0;
+        }
+
+        .building-description {
+            margin: 1rem 0;
+            color: var(--dark);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .building-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .building-detail {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .building-detail svg {
+            margin-right: 0.25rem;
+            height: 16px;
+            width: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            background: var(--gradient-secondary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            letter-spacing: 0.01em;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(14, 165, 233, 0.3);
+        }
+        
+        .btn:hover:before {
+            left: 100%;
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn svg {
+            margin-right: 0.5rem;
+            height: 18px;
+            width: 18px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f43f5e, #fb7185);
+            box-shadow: 0 4px 6px rgba(244, 63, 94, 0.25);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 6px 12px rgba(244, 63, 94, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            box-shadow: 0 4px 6px rgba(30, 64, 175, 0.25);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 12px rgba(30, 64, 175, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+        }
+        
+        .btn-success:hover {
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary-light);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary-light);
+            color: white;
+            box-shadow: 0 6px 12px rgba(30, 64, 175, 0.2);
+        }
+
+        form input, form textarea, form select {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-size: 1rem;
+            background-color: white;
+        }
+        
+        form input:focus, form textarea:focus, form select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+            outline: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+            margin-bottom: 0;
+        }
+        
+        .file-upload {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            margin-bottom: 1.25rem;
+        }
+        
+        .file-upload-input {
+            display: none;
+        }
+        
+        .file-upload-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px dashed var(--gray);
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            transition: var(--transition);
+        }
+        
+        .file-upload-button:hover {
+            border-color: var(--primary-light);
+            background-color: rgba(96, 165, 250, 0.05);
+        }
+        
+        .file-upload-button svg {
+            margin-right: 0.5rem;
+            height: 24px;
+            width: 24px;
+            color: var(--primary);
+        }
+        
+        .image-preview {
+            width: 100%;
+            max-height: 250px;
+            margin-top: 0.75rem;
+            border-radius: var(--radius);
+            display: none;
+            object-fit: cover;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        .form-group small {
+            display: block;
+            color: var(--gray);
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .notification {
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .notification svg {
+            margin-right: 0.75rem;
+            height: 20px;
+            width: 20px;
+            flex-shrink: 0;
+        }
+
+        .notification-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .notification-error {
+            background-color: rgba(244, 63, 94, 0.1);
+            color: #9f1239;
+            border-left: 4px solid #f43f5e;
+        }
+        
+        .notification-info {
+            background-color: rgba(14, 165, 233, 0.1);
+            color: #0369a1;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-top: 4rem;
+            position: relative;
+        }
+        
+        footer:before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: var(--gradient-primary);
+            clip-path: polygon(0 100%, 100% 0, 100% 100%);
+        }
+        
+        footer p {
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+        }
+        
+        .footer-nav {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .footer-nav a {
+            color: white;
+            opacity: 0.8;
+            text-decoration: none;
+            transition: var (--transition);
+        }
+        
+        .footer-nav a:hover {
+            opacity: 1;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            transition: var(--transition);
+        }
+        
+        .social-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .social-link svg {
+            width: 18px;
+            height: 18px;
+            color: white;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+            box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .feature-banner {
+            padding: 3rem 0;
+            background-color: var(--light);
+            text-align: center;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-image: linear-gradient(120deg, #f6f9fa, #e6eaed);
+        }
+
+        @media (max-width: 768px) {
+            .buildings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+    <!-- Add Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_TRACKING_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'YOUR_TRACKING_ID');
+    </script>
+</head>
+<body>
+    <header>
+        <h1>الرحاب عقار</h1>
+        <p>اكتشف أفضل العقارات التجارية وفرص الاستثمار</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#" class="nav-link" data-page="home">الرئيسية</a></li>
+            <li><a href="#" class="nav-link" data-page="buildings">العقارات</a></li>
+            <li><a href="#" class="nav-link" data-page="admin-login">الإدارة</a></li>
+        </ul>
+    </nav>
+
+
+    <main>
+        <!-- Home Page -->
+        <div id="home-page" class="page">
+            <div class="container">
+                <h2>مرحبا في الرحاب عقار</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">مصدرُك الموثوق للعقارات التجارية، والمباني الإدارية، والعقارات الاستثمارية.</p>
+                
+                <div class="feature-banner">
+                    <h3>عقارات تجارية فاخرة</h3>
+                    <p>اكتشف فرصًا استثمارية استثنائية في مواقع متميزة.</p>
+                    <a href="#" class="btn btn-primary nav-link" style="margin-top: 1rem;" data-page="buildings">تصفح المباني</a>
+                </div>
+                
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">العقارات المميزة</h3>
+                <div class="buildings-grid" id="featured-buildings">
+                    <!-- Featured buildings will be loaded here -->
+                </div>
+                <div class="text-center" style="margin-top: 2rem; text-align: center;">
+                    <a href="#" class="btn btn-primary nav-link" data-page="buildings">عرض المباني</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buildings Page -->
+        <div id="buildings-page" class="page hidden">
+            <div class="container">
+                <h2>المباني المتاحة</h2>
+                <!-- Add a search bar in the Buildings Page -->
+                <div class="form-group">
+                    <input type="text" id="search-bar" placeholder="ابحث عن المباني بالاسمع..." oninput="searchBuildings()">
+                </div>
+                <!-- Add sorting options -->
+                <div class="form-group">
+                    <label for="sort-options">ترتيب حسب:</label>
+                    <select id="sort-options" onchange="sortBuildings()">
+                        <option value="price">السعر</option>
+                        <option value="size">الحجم</option>
+                        <option value="year">سنة البناء</option>
+                    </select>
+                </div>
+                <div class="buildings-grid" id="all-buildings">
+                    <!-- All buildings will be loaded here -->
+                </div>
+                <!-- Add pagination controls -->
+                <div id="pagination-controls" class="pagination-controls"></div>
+            </div>
+        </div>
+
+        <!-- Admin Login Page -->
+        <div id="admin-login-page" class="page hidden">
+            <div class="login-form">
+                <h2>تسجيل دخول الإدارة</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="password">كلمة السر</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">تسجيل الدخول</button>
+                </form>
+                <div id="login-error" class="notification notification-error hidden">
+                    كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard Page -->
+        <div id="admin-dashboard-page" class="page hidden">
+            <div class="container">
+                <h2>لوحة تحكم المشرف</h2>
+                <button id="add-building-btn" class="btn btn-primary">اضافة مبني</button>
+                <button id="logout-btn" class="btn btn-danger">تسجيل خروج</button>
+                
+                <div id="admin-notification" class="notification hidden"></div>
+                
+                <div id="add-building-form" class="hidden" style="margin-top: 2rem;">
+                    <h3>اضافة مبني</h3>
+                    <form id="building-form">
+                        <input type="hidden" id="building-id" value="">
+                        <div class="form-group">
+                            <label for="name">اسم المبني</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">الموقع</label>
+                            <input type="text" id="location" name="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">سعر</label>
+                            <input type="number" id="price" name="price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="size">حجم</label>
+                            <input type="number" id="size" name="size" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">الوصف</label>
+                            <textarea id="description" name="description" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="featured" name="featured"> 
+                               عرض هذا العقار في الصفحة الرئيسية
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="image-upload">صورة المبني</label>
+                            <div class="file-upload">
+                                <input type="file" id="image-upload" class="file-upload-input" accept="image/*">
+                                <label for="image-upload" class="file-upload-button">
+                                    <span id="upload-text">اختر صورة</span>
+                                </label>
+                            </div>
+                            <img id="image-preview" class="image-preview">
+                            <input type="hidden" id="image" name="image" value="/api/placeholder/400/320">
+                            <small>الحد الأقصى لحجم الملف: 5 ميغابايت. الأبعاد الموصى بها: 800×600 بكسل.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">حفظ المباني</button>
+                        <button type="button" id="cancel-add" class="btn">إلغاء</button>
+                    </form>
+                </div>
+                
+                <h3 style="margin-top: 2rem;">اضراة المباني</h3>
+                <div class="container">
+                    <button id="show-buildings-btn" class="btn btn-primary">عرض العقارات</button>
+                    <div class="buildings-grid" id="admin-buildings">
+                        <!-- سيتم تحميل العقارات هنا -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Premier Buildings. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Sample data
+        let buildings = [
+            {
+                id: 1,
+                name: "Glass Tower Office",
+                location: "Downtown Financial District",
+                price: 2500000,
+                size: 12000,
+                year: 2015,
+                description: "Modern glass tower with panoramic city views. Perfect for corporate headquarters with high-end amenities and LEED Gold certification.",
+                image: "/api/placeholder/400/320",
+                featured: true
+            },
+            {
+                id: 2,
+                name: "Historic Brick Building",
+                location: "Arts District",
+                price: 1800000,
+                size: 8500,
+                year: 1920,
+                description: "Beautifully restored historic building with original brick features. Currently configured as mixed-use with retail on ground floor and offices above.",
+                image: "/api/placeholder/400/320"
+            },
+            {
+                id: 3,
+                name: "Tech Park Complex",
+                location: "Innovation Corridor",
+                price: 4200000,
+                size: 20000,
+                year: 2018,
+                description: "Modern campus-style building designed for tech companies. Features open floor plans, collaborative spaces, and state-of-the-art infrastructure.",
+                image: "/api/placeholder/400/320"
+            }
+        ];
+
+        // Admin password - hardcoded for demo purposes only
+        // In a real application, this would be handled securely on the server
+        const ADMIN_PASSWORD = "3zHj}(>C62;u";
+
+        // DOM Elements
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const addBuildingBtn = document.getElementById('add-building-btn');
+        const addBuildingForm = document.getElementById('add-building-form');
+        const buildingForm = document.getElementById('building-form');
+        const cancelAddBtn = document.getElementById('cancel-add');
+        const logoutBtn = document.getElementById('logout-btn');
+        const adminNotification = document.getElementById('admin-notification');
+
+        // Navigation
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById(`${pageId}-page`).classList.remove('hidden');
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageId = this.dataset.page;
+                showPage(pageId);
+            });
+        });
+
+        // Format currency in Egyptian Pounds (EGP)
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-EG', {
+                style: 'currency',
+                currency: 'EGP',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format number with commas
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+
+        // Render buildings
+        function renderBuildings() {
+            const adminBuildings = document.getElementById('admin-buildings');
+            const allBuildings = document.getElementById('all-buildings'); // قائمة الزبائن
+            adminBuildings.innerHTML = '';
+            allBuildings.innerHTML = '';
+
+            if (buildings.length === 0) {
+                adminBuildings.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--gray);">لا توجد عقارات لعرضها.</p>';
+                allBuildings.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--gray);">لا توجد عقارات متاحة حالياً.</p>';
+                return;
+            }
+
+            buildings.forEach(building => {
+                // عرض العقارات في صفحة الإدارة
+                adminBuildings.innerHTML += `
+                    <div class="building-card">
+                        <div class="building-image" style="background-image: url(${building.image})"></div>
+                        <div class="building-info">
+                            <h3>${building.name}</h3>
+                            <p>${building.location}</p>
+                            <p class="building-price">${formatCurrency(building.price)}</p>
+                            <p class="building-description">${building.description}</p>
+                            <div class="building-details">
+                                <span class="building-detail">${formatNumber(building.size)} متر مربع</span>
+                                <span class="building-detail">تم بناؤه عام ${building.year}</span>
+                            </div>
+                            <div class="admin-actions">
+                                <button class="btn btn-primary" onclick="editBuilding(${building.id})">تعديل</button>
+                                <button class="btn btn-danger" onclick="deleteBuilding(${building.id})">حذف</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // عرض العقارات في صفحة الزبائن
+                allBuildings.innerHTML += `
+                    <div class="building-card">
+                        <div class="building-image" style="background-image: url(${building.image})"></div>
+                        <div class="building-info">
+                            <h3>${building.name}</h3>
+                            <p>${building.location}</p>
+                            <p class="building-price">${formatCurrency(building.price)}</p>
+                            <p class="building-description">${building.description}</p>
+                            <div class="building-details">
+                                <span class="building-detail">${formatNumber(building.size)} متر مربع</span>
+                                <span class="building-detail">تم بناؤه عام ${building.year}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Add search functionality
+        function searchBuildings() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const allBuildings = document.getElementById('all-buildings');
+            allBuildings.innerHTML = '';
+
+            buildings.filter(building => 
+                building.name.toLowerCase().includes(query) || 
+                building.location.toLowerCase().includes(query)
+            ).forEach(building => {
+                allBuildings.innerHTML += `
+                    <div class="building-card">
+                        <div class="building-image" style="background-image: url(${building.image})"></div>
+                        <div class="building-info">
+                            <h3>${building.name}</h3>
+                            <p>${building.location}</p>
+                            <p class="building-price">${formatCurrency(building.price)}</p>
+                            <p class="building-description">${building.description}</p>
+                            <div class="building-details">
+                                <span class="building-detail">${formatNumber(building.size)} sq ft</span>
+                                <span class="building-detail">Built ${building.year}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Add sorting functionality
+        function sortBuildings() {
+            const sortBy = document.getElementById('sort-options').value;
+            buildings.sort((a, b) => a[sortBy] - b[sortBy]);
+            renderBuildings();
+        }
+
+        // Add pagination
+        let currentPage = 1;
+        const buildingsPerPage = 6;
+
+        function renderPaginatedBuildings(page = 1) {
+            const start = (page - 1) * buildingsPerPage;
+            const end = start + buildingsPerPage;
+            const paginatedBuildings = buildings.slice(start, end);
+
+            const allBuildings = document.getElementById('all-buildings');
+            allBuildings.innerHTML = '';
+
+            paginatedBuildings.forEach(building => {
+                allBuildings.innerHTML += `
+                    <div class="building-card">
+                        <div class="building-image" style="background-image: url(${building.image})"></div>
+                        <div class="building-info">
+                            <h3>${building.name}</h3>
+                            <p>${building.location}</p>
+                            <p class="building-price">${formatCurrency(building.price)}</p>
+                            <p class="building-description">${building.description}</p>
+                            <div class="building-details">
+                                <span class="building-detail">${formatNumber(building.size)} sq ft</span>
+                                <span class="building-detail">Built ${building.year}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            renderPaginationControls();
+        }
+
+        function renderPaginationControls() {
+            const totalPages = Math.ceil(buildings.length / buildingsPerPage);
+            const paginationControls = document.getElementById('pagination-controls');
+            paginationControls.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                paginationControls.innerHTML += `<button onclick="renderPaginatedBuildings(${i})">${i}</button>`;
+            }
+        }
+
+        // Login handling
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                showPage('admin-dashboard');
+                loginError.classList.add('hidden');
+                document.getElementById('password').value = '';
+            } else {
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        // Add new building form
+        addBuildingBtn.addEventListener('click', function() {
+            // Clear the form
+            buildingForm.reset();
+            document.getElementById('building-id').value = '';
+            document.getElementById('image').value = '/api/placeholder/400/320';
+            
+            // Show the form
+            addBuildingForm.classList.remove('hidden');
+            document.getElementById('featured').checked = false;
+            document.getElementById('image-preview').style.display = 'none';
+        });
+        
+        cancelAddBtn.addEventListener('click', function() {
+            addBuildingForm.classList.add('hidden');
+        });
+
+        // Handle image upload
+        document.getElementById('image-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size (limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size exceeds 5MB limit. Please choose a smaller file.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Update upload button text
+                document.getElementById('upload-text').textContent = file.name;
+                
+                // Show image preview
+                const reader = new FileReader();
+                const preview = document.getElementById('image-preview');
+                
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    
+                    // Store the base64 image in the hidden input
+                    document.getElementById('image').value = event.target.result;
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Save building (add or update)
+        buildingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const buildingId = document.getElementById('building-id').value;
+            const building = {
+                name: document.getElementById('name').value,
+                location: document.getElementById('location').value,
+                price: parseInt(document.getElementById('price').value),
+                size: parseInt(document.getElementById('size').value),
+                year: parseInt(document.getElementById('year').value),
+                description: document.getElementById('description').value,
+                image: document.getElementById('image').value || '/api/placeholder/400/320',
+                featured: document.getElementById('featured').checked
+            };
+            
+            if (buildingId) {
+                // تحديث العقار الموجود
+                building.id = parseInt(buildingId);
+                const index = buildings.findIndex(b => b.id === building.id);
+                if (index !== -1) {
+                    buildings[index] = building;
+                    showNotification('تم تحديث العقار بنجاح!', 'success');
+                }
+            } else {
+                // إضافة عقار جديد
+                building.id = buildings.length > 0 ? Math.max(...buildings.map(b => b.id)) + 1 : 1;
+                buildings.push(building);
+                showNotification('تمت إضافة العقار بنجاح!', 'success');
+            }
+            
+            // تحديث القوائم
+            renderBuildings();
+            
+            // إخفاء النموذج
+            addBuildingForm.classList.add('hidden');
+        });
+
+        // Edit building
+        window.editBuilding = function(id) {
+            const building = buildings.find(b => b.id === id);
+            if (building) {
+                document.getElementById('building-id').value = building.id;
+                document.getElementById('name').value = building.name;
+                document.getElementById('location').value = building.location;
+                document.getElementById('price').value = building.price;
+                document.getElementById('size').value = building.size;
+                document.getElementById('year').value = building.year;
+                document.getElementById('description').value = building.description;
+                document.getElementById('image').value = building.image;
+                
+                // Update image preview if there's an image
+                const preview = document.getElementById('image-preview');
+                preview.src = building.image;
+                preview.style.display = 'block';
+                
+                // Update upload button text
+                document.getElementById('upload-text').textContent = 'Current image loaded';
+                
+                // Set featured checkbox
+                document.getElementById('featured').checked = building.featured || false;
+                
+                addBuildingForm.classList.remove('hidden');
+                addBuildingForm.scrollIntoView({behavior: 'smooth'});
+            }
+        };
+
+        // Delete building
+        window.deleteBuilding = function(id) {
+            if (confirm('هل أنت متأكد أنك تريد حذف هذا العقار؟')) {
+                // حذف العقار من القائمة
+                buildings = buildings.filter(b => b.id !== id);
+
+                // تحديث القوائم
+                renderBuildings();
+
+                // إظهار إشعار
+                showNotification('تم حذف العقار بنجاح!', 'success');
+            }
+        };
+
+        // Show notification in admin panel
+        function showNotification(message, type) {
+            adminNotification.textContent = message;
+            adminNotification.className = 'notification';
+            adminNotification.classList.add(`notification-${type}`);
+            adminNotification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                adminNotification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // أمثلة على الرسائل
+        showNotification('تمت إضافة العقار بنجاح!', 'success');
+        showNotification('تم حذف العقار بنجاح!', 'success');
+
+        // Logout
+        logoutBtn.addEventListener('click', function() {
+            showPage('home');
+        });
+
+        // Lazy load images
+        document.addEventListener('DOMContentLoaded', function () {
+            const lazyImages = document.querySelectorAll('img[data-src]');
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            lazyImages.forEach(img => observer.observe(img));
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('home');
+            renderBuildings();
+        });
+
+        // إخفاء العقارات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminBuildings = document.getElementById('admin-buildings');
+            adminBuildings.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--gray);">لا توجد عقارات لعرضها.</p>';
+        });
+
+        // عرض العقارات عند النقر على الزر
+        document.getElementById('show-buildings-btn').addEventListener('click', function() {
+            renderBuildings();
+        });
+    </script>
+</body>
+</html>
