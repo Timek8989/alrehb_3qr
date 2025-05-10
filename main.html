@@ -732,6 +732,58 @@
         gtag('js', new Date());
         gtag('config', 'YOUR_TRACKING_ID');
     </script>
+      
+      <!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+  import { 
+    getDatabase, 
+    ref, 
+    push, 
+    update, 
+    remove, 
+    onValue 
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "...",
+    authDomain: "...firebaseapp.com",
+    databaseURL: "https://rehab-realestate-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "rehab-realestate",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "...",
+    measurementId: "..."
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  getAnalytics(app);
+  const db = getDatabase(app);
+  const buildingsRef = ref(db, "buildings");
+
+  // Real-time listener
+  export function subscribeBuildings(renderFn) {
+    onValue(buildingsRef, snapshot => {
+      const data = snapshot.val() || {};
+      const buildingsList = Object.entries(data).map(([id, b]) => ({ id, ...b }));
+      renderFn(buildingsList);
+    });
+  }
+
+  // Database operations
+  export const firebaseAddBuilding = b => push(buildingsRef, b);
+  export const firebaseUpdateBuilding = (id, b) => update(ref(db, `buildings/${id}`), b);
+  export const firebaseDeleteBuilding = id => remove(ref(db, `buildings/${id}`));
+
+  // Expose to global scope
+  window.firebaseAddBuilding = firebaseAddBuilding;
+  window.firebaseUpdateBuilding = firebaseUpdateBuilding;
+  window.firebaseDeleteBuilding = firebaseDeleteBuilding;
+  window.subscribeBuildings = subscribeBuildings;
+</script>
+
 </head>
 <body>
     <header>
@@ -884,416 +936,240 @@
         <p>&copy; 2025 Premier Buildings. All rights reserved.</p>
     </footer>
 
-    <script>
-        // Sample data
-        let buildings = [
-            {
-                id: 1,
-                name: "Glass Tower Office",
-                location: "Downtown Financial District",
-                price: 2500000,
-                size: 12000,
-                year: 2015,
-                description: "Modern glass tower with panoramic city views. Perfect for corporate headquarters with high-end amenities and LEED Gold certification.",
-                image: "/api/placeholder/400/320",
-                featured: true
-            },
-            {
-                id: 2,
-                name: "Historic Brick Building",
-                location: "Arts District",
-                price: 1800000,
-                size: 8500,
-                year: 1920,
-                description: "Beautifully restored historic building with original brick features. Currently configured as mixed-use with retail on ground floor and offices above.",
-                image: "/api/placeholder/400/320"
-            },
-            {
-                id: 3,
-                name: "Tech Park Complex",
-                location: "Innovation Corridor",
-                price: 4200000,
-                size: 20000,
-                year: 2018,
-                description: "Modern campus-style building designed for tech companies. Features open floor plans, collaborative spaces, and state-of-the-art infrastructure.",
-                image: "/api/placeholder/400/320"
-            }
-        ];
 
-        // Admin password - hardcoded for demo purposes only
-        // In a real application, this would be handled securely on the server
-        const ADMIN_PASSWORD = "3zHj}(>C62;u";
+<script>
+    // Admin password - hardcoded for demo purposes only
+    const ADMIN_PASSWORD = "3zHj}(>C62;u";
 
-        // DOM Elements
-        const pages = document.querySelectorAll('.page');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const addBuildingBtn = document.getElementById('add-building-btn');
-        const addBuildingForm = document.getElementById('add-building-form');
-        const buildingForm = document.getElementById('building-form');
-        const cancelAddBtn = document.getElementById('cancel-add');
-        const logoutBtn = document.getElementById('logout-btn');
-        const adminNotification = document.getElementById('admin-notification');
+    // DOM Elements
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const addBuildingBtn = document.getElementById('add-building-btn');
+    const addBuildingForm = document.getElementById('add-building-form');
+    const buildingForm = document.getElementById('building-form');
+    const cancelAddBtn = document.getElementById('cancel-add');
+    const logoutBtn = document.getElementById('logout-btn');
+    const adminNotification = document.getElementById('admin-notification');
 
-        // Navigation
-        function showPage(pageId) {
-            pages.forEach(page => {
-                page.classList.add('hidden');
-            });
-            document.getElementById(`${pageId}-page`).classList.remove('hidden');
-        }
+    // Navigation
+    function showPage(pageId) {
+        pages.forEach(page => page.classList.add('hidden'));
+        document.getElementById(`${pageId}-page`).classList.remove('hidden');
+    }
 
-        navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const pageId = this.dataset.page;
-                showPage(pageId);
-            });
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            showPage(this.dataset.page);
         });
+    });
 
-        // Format currency in Egyptian Pounds (EGP)
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('ar-EG', {
-                style: 'currency',
-                currency: 'EGP',
-                maximumFractionDigits: 0
-            }).format(amount);
-        }
+    // Format currency in Egyptian Pounds (EGP)
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('ar-EG', {
+            style: 'currency',
+            currency: 'EGP',
+            maximumFractionDigits: 0
+        }).format(amount);
+    }
 
-        // Format number with commas
-        function formatNumber(num) {
-            return new Intl.NumberFormat('en-US').format(num);
-        }
+    // Format number with commas
+    function formatNumber(num) {
+        return new Intl.NumberFormat('en-US').format(num);
+    }
 
-        // Render buildings
-        function renderBuildings() {
-            const adminBuildings = document.getElementById('admin-buildings');
-            const allBuildings = document.getElementById('all-buildings'); // قائمة الزبائن
-            adminBuildings.innerHTML = '';
-            allBuildings.innerHTML = '';
-
-            if (buildings.length === 0) {
-                adminBuildings.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--gray);">لا توجد عقارات لعرضها.</p>';
-                allBuildings.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--gray);">لا توجد عقارات متاحة حالياً.</p>';
-                return;
-            }
-
-            buildings.forEach(building => {
-                // عرض العقارات في صفحة الإدارة
-                adminBuildings.innerHTML += `
-                    <div class="building-card">
-                        <div class="building-image" style="background-image: url(${building.image})"></div>
-                        <div class="building-info">
-                            <h3>${building.name}</h3>
-                            <p>${building.location}</p>
-                            <p class="building-price">${formatCurrency(building.price)}</p>
-                            <p class="building-description">${building.description}</p>
-                            <div class="building-details">
-                                <span class="building-detail">${formatNumber(building.size)} متر مربع</span>
-                                <span class="building-detail">تم بناؤه عام ${building.year}</span>
-                            </div>
-                            <div class="admin-actions">
-                                <button class="btn btn-primary" onclick="editBuilding(${building.id})">تعديل</button>
-                                <button class="btn btn-danger" onclick="deleteBuilding(${building.id})">حذف</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // عرض العقارات في صفحة الزبائن
-                allBuildings.innerHTML += `
-                    <div class="building-card">
-                        <div class="building-image" style="background-image: url(${building.image})"></div>
-                        <div class="building-info">
-                            <h3>${building.name}</h3>
-                            <p>${building.location}</p>
-                            <p class="building-price">${formatCurrency(building.price)}</p>
-                            <p class="building-description">${building.description}</p>
-                            <div class="building-details">
-                                <span class="building-detail">${formatNumber(building.size)} متر مربع</span>
-                                <span class="building-detail">تم بناؤه عام ${building.year}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Add search functionality
-        function searchBuildings() {
-            const query = document.getElementById('search-bar').value.toLowerCase();
-            const allBuildings = document.getElementById('all-buildings');
-            allBuildings.innerHTML = '';
-
-            buildings.filter(building => 
-                building.name.toLowerCase().includes(query) || 
-                building.location.toLowerCase().includes(query)
-            ).forEach(building => {
-                allBuildings.innerHTML += `
-                    <div class="building-card">
-                        <div class="building-image" style="background-image: url(${building.image})"></div>
-                        <div class="building-info">
-                            <h3>${building.name}</h3>
-                            <p>${building.location}</p>
-                            <p class="building-price">${formatCurrency(building.price)}</p>
-                            <p class="building-description">${building.description}</p>
-                            <div class="building-details">
-                                <span class="building-detail">${formatNumber(building.size)} sq ft</span>
-                                <span class="building-detail">Built ${building.year}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Add sorting functionality
-        function sortBuildings() {
-            const sortBy = document.getElementById('sort-options').value;
-            buildings.sort((a, b) => a[sortBy] - b[sortBy]);
+    // Initialize real-time DB connection
+    document.addEventListener("DOMContentLoaded", () => {
+        showPage('home');
+        subscribeBuildings(data => {
+            window.buildings = data;
             renderBuildings();
+        });
+    });
+
+    // Render buildings (updated for real-time DB)
+    function renderBuildings() {
+        const adminBuildings = document.getElementById('admin-buildings');
+        const allBuildings = document.getElementById('all-buildings');
+        const featuredBuildings = document.getElementById('featured-buildings');
+
+        [adminBuildings, allBuildings, featuredBuildings].forEach(container => container.innerHTML = '');
+
+        if (!window.buildings.length) {
+            adminBuildings.innerHTML = '<p style="text-align: center; color: var(--gray);">لا توجد عقارات لعرضها.</p>';
+            allBuildings.innerHTML = '<p style="text-align: center; color: var(--gray);">لا توجد عقارات متاحة حالياً.</p>';
+            return;
         }
 
-        // Add pagination
-        let currentPage = 1;
-        const buildingsPerPage = 6;
-
-        function renderPaginatedBuildings(page = 1) {
-            const start = (page - 1) * buildingsPerPage;
-            const end = start + buildingsPerPage;
-            const paginatedBuildings = buildings.slice(start, end);
-
-            const allBuildings = document.getElementById('all-buildings');
-            allBuildings.innerHTML = '';
-
-            paginatedBuildings.forEach(building => {
-                allBuildings.innerHTML += `
-                    <div class="building-card">
-                        <div class="building-image" style="background-image: url(${building.image})"></div>
-                        <div class="building-info">
-                            <h3>${building.name}</h3>
-                            <p>${building.location}</p>
-                            <p class="building-price">${formatCurrency(building.price)}</p>
-                            <p class="building-description">${building.description}</p>
-                            <div class="building-details">
-                                <span class="building-detail">${formatNumber(building.size)} sq ft</span>
-                                <span class="building-detail">Built ${building.year}</span>
-                            </div>
-                        </div>
+        const createCard = (building, isAdmin = false) => `
+            <div class="building-card">
+                <div class="building-image" style="background-image: url(${building.image || '/placeholder.jpg'})">
+                    ${building.featured ? '<span class="featured-tag">مميز</span>' : ''}
+                </div>
+                <div class="building-info">
+                    <h3>${building.name}</h3>
+                    <div class="building-location">
+                        <svg><!-- location icon --></svg>
+                        ${building.location}
                     </div>
-                `;
-            });
+                    <p class="building-price">${formatCurrency(building.price)}</p>
+                    <p class="building-description">${building.description}</p>
+                    <div class="building-details">
+                        <span class="building-detail">
+                            <svg><!-- size icon --></svg>
+                            ${formatNumber(building.size)} متر²
+                        </span>
+                        <span class="building-detail">
+                            <svg><!-- year icon --></svg>
+                            عام ${building.year}
+                        </span>
+                    </div>
+                    ${isAdmin ? `
+                    <div class="admin-actions">
+                        <button class="btn btn-primary" onclick="editBuilding('${building.id}')">تعديل</button>
+                        <button class="btn btn-danger" onclick="deleteBuilding('${building.id}')">حذف</button>
+                    </div>` : ''}
+                </div>
+            </div>
+        `;
 
-            renderPaginationControls();
-        }
-
-        function renderPaginationControls() {
-            const totalPages = Math.ceil(buildings.length / buildingsPerPage);
-            const paginationControls = document.getElementById('pagination-controls');
-            paginationControls.innerHTML = '';
-
-            for (let i = 1; i <= totalPages; i++) {
-                paginationControls.innerHTML += `<button onclick="renderPaginatedBuildings(${i})">${i}</button>`;
-            }
-        }
-
-        // Login handling
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            
-            if (password === ADMIN_PASSWORD) {
-                showPage('admin-dashboard');
-                loginError.classList.add('hidden');
-                document.getElementById('password').value = '';
-            } else {
-                loginError.classList.remove('hidden');
+        window.buildings.forEach(building => {
+            adminBuildings.innerHTML += createCard(building, true);
+            allBuildings.innerHTML += createCard(building);
+            if (building.featured) {
+                featuredBuildings.innerHTML += createCard(building);
             }
         });
+    }
 
-        // Add new building form
-        addBuildingBtn.addEventListener('click', function() {
-            // Clear the form
-            buildingForm.reset();
-            document.getElementById('building-id').value = '';
-            document.getElementById('image').value = '/api/placeholder/400/320';
-            
-            // Show the form
-            addBuildingForm.classList.remove('hidden');
-            document.getElementById('featured').checked = false;
-            document.getElementById('image-preview').style.display = 'none';
-        });
+    // Handle form submission
+    buildingForm.addEventListener('submit', async e => {
+        e.preventDefault();
         
-        cancelAddBtn.addEventListener('click', function() {
-            addBuildingForm.classList.add('hidden');
-        });
+        const buildingData = {
+            name: document.getElementById('name').value,
+            location: document.getElementById('location').value,
+            price: Number(document.getElementById('price').value),
+            size: Number(document.getElementById('size').value),
+            year: Number(document.getElementById('year').value),
+            description: document.getElementById('description').value,
+            image: document.getElementById('image').value,
+            featured: document.getElementById('featured').checked
+        };
 
-        // Handle image upload
-        document.getElementById('image-upload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Check file size (limit to 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('File size exceeds 5MB limit. Please choose a smaller file.');
-                    this.value = '';
-                    return;
-                }
-                
-                // Update upload button text
-                document.getElementById('upload-text').textContent = file.name;
-                
-                // Show image preview
-                const reader = new FileReader();
-                const preview = document.getElementById('image-preview');
-                
-                reader.onload = function(event) {
-                    preview.src = event.target.result;
-                    preview.style.display = 'block';
-                    
-                    // Store the base64 image in the hidden input
-                    document.getElementById('image').value = event.target.result;
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        });
-        
-        // Save building (add or update)
-        buildingForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const buildingId = document.getElementById('building-id').value;
-            const building = {
-                name: document.getElementById('name').value,
-                location: document.getElementById('location').value,
-                price: parseInt(document.getElementById('price').value),
-                size: parseInt(document.getElementById('size').value),
-                year: parseInt(document.getElementById('year').value),
-                description: document.getElementById('description').value,
-                image: document.getElementById('image').value || '/api/placeholder/400/320',
-                featured: document.getElementById('featured').checked
-            };
-            
+        const buildingId = document.getElementById('building-id').value;
+
+        try {
             if (buildingId) {
-                // تحديث العقار الموجود
-                building.id = parseInt(buildingId);
-                const index = buildings.findIndex(b => b.id === building.id);
-                if (index !== -1) {
-                    buildings[index] = building;
-                    showNotification('تم تحديث العقار بنجاح!', 'success');
-                }
+                await firebaseUpdateBuilding(buildingId, buildingData);
+                showNotification('تم تحديث العقار بنجاح!', 'success');
             } else {
-                // إضافة عقار جديد
-                building.id = buildings.length > 0 ? Math.max(...buildings.map(b => b.id)) + 1 : 1;
-                buildings.push(building);
+                await firebaseAddBuilding(buildingData);
                 showNotification('تمت إضافة العقار بنجاح!', 'success');
             }
-            
-            // تحديث القوائم
-            renderBuildings();
-            
-            // إخفاء النموذج
             addBuildingForm.classList.add('hidden');
-        });
+            buildingForm.reset();
+        } catch (error) {
+            showNotification('حدث خطأ أثناء الحفظ!', 'error');
+            console.error('Error saving building:', error);
+        }
+    });
 
-        // Edit building
-        window.editBuilding = function(id) {
-            const building = buildings.find(b => b.id === id);
-            if (building) {
-                document.getElementById('building-id').value = building.id;
-                document.getElementById('name').value = building.name;
-                document.getElementById('location').value = building.location;
-                document.getElementById('price').value = building.price;
-                document.getElementById('size').value = building.size;
-                document.getElementById('year').value = building.year;
-                document.getElementById('description').value = building.description;
-                document.getElementById('image').value = building.image;
-                
-                // Update image preview if there's an image
-                const preview = document.getElementById('image-preview');
-                preview.src = building.image;
-                preview.style.display = 'block';
-                
-                // Update upload button text
-                document.getElementById('upload-text').textContent = 'Current image loaded';
-                
-                // Set featured checkbox
-                document.getElementById('featured').checked = building.featured || false;
-                
-                addBuildingForm.classList.remove('hidden');
-                addBuildingForm.scrollIntoView({behavior: 'smooth'});
-            }
-        };
+    // Edit building handler
+    window.editBuilding = id => {
+        const building = window.buildings.find(b => b.id === id);
+        if (!building) return;
 
-        // Delete building
-        window.deleteBuilding = function(id) {
-            if (confirm('هل أنت متأكد أنك تريد حذف هذا العقار؟')) {
-                // حذف العقار من القائمة
-                buildings = buildings.filter(b => b.id !== id);
+        document.getElementById('building-id').value = id;
+        document.getElementById('name').value = building.name;
+        document.getElementById('location').value = building.location;
+        document.getElementById('price').value = building.price;
+        document.getElementById('size').value = building.size;
+        document.getElementById('year').value = building.year;
+        document.getElementById('description').value = building.description;
+        document.getElementById('image').value = building.image;
+        document.getElementById('featured').checked = building.featured;
 
-                // تحديث القوائم
-                renderBuildings();
+        const preview = document.getElementById('image-preview');
+        preview.src = building.image || '/placeholder.jpg';
+        preview.style.display = 'block';
+        addBuildingForm.classList.remove('hidden');
+    };
 
-                // إظهار إشعار
+    // Delete building handler
+    window.deleteBuilding = async id => {
+        if (confirm('هل أنت متأكد من حذف هذا العقار؟')) {
+            try {
+                await firebaseDeleteBuilding(id);
                 showNotification('تم حذف العقار بنجاح!', 'success');
+            } catch (error) {
+                showNotification('حدث خطأ أثناء الحذف!', 'error');
+                console.error('Error deleting building:', error);
             }
-        };
+        }
+    };
 
-        // Show notification in admin panel
-        function showNotification(message, type) {
-            adminNotification.textContent = message;
-            adminNotification.className = 'notification';
-            adminNotification.classList.add(`notification-${type}`);
-            adminNotification.classList.remove('hidden');
-            
-            setTimeout(() => {
-                adminNotification.classList.add('hidden');
-            }, 3000);
+    // Login handling
+    loginForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const password = document.getElementById('password').value;
+        
+        if (password === ADMIN_PASSWORD) {
+            showPage('admin-dashboard');
+            loginError.classList.add('hidden');
+            document.getElementById('password').value = '';
+        } else {
+            loginError.classList.remove('hidden');
+        }
+    });
+
+    // Image upload handling
+    document.getElementById('image-upload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('حجم الملف يتجاوز 5 ميغابايت');
+            this.value = '';
+            return;
         }
 
-        // أمثلة على الرسائل
-        showNotification('تمت إضافة العقار بنجاح!', 'success');
-        showNotification('تم حذف العقار بنجاح!', 'success');
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            document.getElementById('image-preview').src = event.target.result;
+            document.getElementById('image').value = event.target.result;
+            document.getElementById('image-preview').style.display = 'block';
+            document.getElementById('upload-text').textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+    });
 
-        // Logout
-        logoutBtn.addEventListener('click', function() {
-            showPage('home');
-        });
+    // Show/hide form
+    addBuildingBtn.addEventListener('click', () => {
+        buildingForm.reset();
+        document.getElementById('building-id').value = '';
+        document.getElementById('image-preview').style.display = 'none';
+        document.getElementById('upload-text').textContent = 'اختر صورة';
+        addBuildingForm.classList.remove('hidden');
+    });
 
-        // Lazy load images
-        document.addEventListener('DOMContentLoaded', function () {
-            const lazyImages = document.querySelectorAll('img[data-src]');
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.removeAttribute('data-src');
-                        observer.unobserve(img);
-                    }
-                });
-            });
+    cancelAddBtn.addEventListener('click', () => {
+        addBuildingForm.classList.add('hidden');
+    });
 
-            lazyImages.forEach(img => observer.observe(img));
-        });
+    // Logout
+    logoutBtn.addEventListener('click', () => showPage('home'));
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            showPage('home');
-            renderBuildings();
-        });
+    // Notification system
+    function showNotification(message, type) {
+        adminNotification.textContent = message;
+        adminNotification.className = `notification notification-${type}`;
+        adminNotification.classList.remove('hidden');
+        setTimeout(() => adminNotification.classList.add('hidden'), 3000);
+    }
+</script>
 
-        // إخفاء العقارات عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            const adminBuildings = document.getElementById('admin-buildings');
-            adminBuildings.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--gray);">لا توجد عقارات لعرضها.</p>';
-        });
-
-        // عرض العقارات عند النقر على الزر
-        document.getElementById('show-buildings-btn').addEventListener('click', function() {
-            renderBuildings();
-        });
-    </script>
 </body>
 </html>
